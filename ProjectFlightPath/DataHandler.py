@@ -25,7 +25,7 @@ class DataHandler():
 
     def read_csv(self, id):
         if id == "get_dlp":
-            with open("data/drone_local_position_unformated.csv", 'r') as file:
+            with open("data_orig/drone_local_position_unformated.csv", 'r') as file:
                 headers = ['time', 'header', 'pose']
                 csvreader = csv.DictReader(
                     file, delimiter=',',  fieldnames=headers)
@@ -67,7 +67,7 @@ class DataHandler():
             return self.times, self.x, self.y, self.z, self.xroll, self.ypitch, self.zyaw, self.w
 
         elif id == "get_start":
-            with open("data/activate_offboard.csv", 'r') as file:
+            with open("data_orig/activate_offboard.csv", 'r') as file:
                 headers = ['time', 'data']
                 csvreader = csv.DictReader(
                     file, delimiter=',',  fieldnames=headers)
@@ -82,7 +82,7 @@ class DataHandler():
             return self.time_start
     
         elif id == "get_camera":
-            with open("data/local_position_targets.csv", 'r') as file:
+            with open("data_orig/local_position_targets.csv", 'r') as file:
                 headers = ['time', 'layout', 'data']
                 data_x = []
                 data_y = []
