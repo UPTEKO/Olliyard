@@ -2,7 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from math import atan2, asin, degrees
+import math
 from matplotlib.widgets import Slider
+import numpy as np
 
 # Read the CSV file
 data = pd.read_csv('data_orig/drone_local_position_unformated.csv')
@@ -31,7 +33,7 @@ def euler_from_quaternion(x, y, z, w):
     return roll_x, pitch_y, yaw_z  # in radians
 
 # Initialize the plot
-fig = plt.figure()
+fig = plt.figure(figsize=(8, 6))
 ax = fig.add_subplot(111, projection='3d')
 
 # Plot the initial orientation
@@ -41,11 +43,15 @@ initial_orientation = euler_from_quaternion(
     orientation.iloc[0]['z'],
     orientation.iloc[0]['w']
 )
-quiver = ax.quiver(0, 0, 0, initial_orientation[0], initial_orientation[1], initial_orientation[2],
-                   length=0.1, normalize=True, color='r', label='Drone Orientation')
-ax.set_xlabel('Roll')
-ax.set_ylabel('Pitch')
-ax.set_zlabel('Yaw')
+
+# Create three arrows for roll, pitch, and yaw
+roll_arrow = ax.quiver(0, 0, 0, 1, 0, 0, length=0.1, normalize=True, color='r', label='Roll')
+pitch_arrow = ax.quiver(0, 0, 0, 0, 1, 0, length=0.1, normalize=True, color='g', label='Pitch')
+yaw_arrow = ax.quiver(0, 0, 0, 0, 0, 1, length=0.1, normalize=True, color='b', label='Yaw')
+
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
 title_text = ax.set_title('')  # Create an empty title text
 ax.legend()
 
@@ -61,7 +67,7 @@ vertical_text = ax.text2D(0.05, 0.9, '', transform=ax.transAxes)
 
 # Update the plot based on the selected time
 def update(val):
-    global quiver
+    global roll_arrow, pitch_arrow, yaw_arrow  # Add global keyword here
     index = int(slider.val)
     orientation_values = euler_from_quaternion(
         orientation.iloc[index]['x'],
@@ -69,10 +75,21 @@ def update(val):
         orientation.iloc[index]['z'],
         orientation.iloc[index]['w']
     )
-    quiver.remove()  # Remove the previous quiver plot
-    quiver = ax.quiver(0, 0, 0, orientation_values[0], orientation_values[1], orientation_values[2],
-                       length=0.1, normalize=True, color='r', label='Drone Orientation')
-    title_text.set_text(f'Drone Orientation at Time: {time.iloc[index]}')  # Update the title text
+    print("                 { roll_x | pitch_y | yaw_z }")
+    print(math.degrees(orientation_values[0]), math.degrees(orientation_values[1]), math.degrees(orientation_values[2]))
+    print(orientation_values)
+    print("                       { x | y | z | w }")
+    print(orientation.iloc[index]['x'], orientation.iloc[index]['y'], orientation.iloc[index]['z'], orientation.iloc[index]['w'])
+    print("----------------------------------------------------------------")
+
+    # Update the roll arrow
+    roll_arrow.set_segments([[[0, 0, 0], [np.cos(orientation_values[0]), np.sin(orientation_values[0]), 0]]])
+
+    # Update the pitch arrow
+    pitch_arrow.set_segments([[[0, 0, 0], [0, np.cos(orientation_values[1]), np.sin(orientation_values[1])]]])
+
+    # Update the yaw arrow
+    yaw_arrow.set_segments([[[0, 0, 0], [np.sin(orientation_values[2]), 0, np.cos(orientation_values[2])]]])
 
     # Calculate the direction based on the yaw angle
     yaw_degrees = degrees(orientation_values[2])
@@ -96,8 +113,12 @@ def update(val):
 
     vertical_text.set_text(f'Vertical: {vertical}')  # Update the vertical text
 
+    title_text.set_text(f'Drone Orientation at Time: {time.iloc[index]}')  # Update the title text
     fig.canvas.draw_idle()
 
 slider.on_changed(update)
+
+# Add a red circle in the middle
+ax.scatter(0, 0, 0, c='red', s=100)
 
 plt.show()
