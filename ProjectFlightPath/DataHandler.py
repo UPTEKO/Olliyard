@@ -23,9 +23,10 @@ class DataHandler():
         # ----- Camera pos -----
         self.cam = []
 
-    def read_csv(self, id):
+    def read_csv(self, id, file=""):
         if id == "get_dlp":
-            with open("data_orig/drone_local_position_unformated.csv", 'r') as file:
+            file = "data_orig/drone_local_position_unformated.csv" if file == "" else file
+            with open(file, 'r') as file:
                 headers = ['time', 'header', 'pose']
                 csvreader = csv.DictReader(
                     file, delimiter=',',  fieldnames=headers)
@@ -67,7 +68,8 @@ class DataHandler():
             return self.times, self.x, self.y, self.z, self.xroll, self.ypitch, self.zyaw, self.w
 
         elif id == "get_start":
-            with open("data_orig/activate_offboard.csv", 'r') as file:
+            file = "data_orig/activate_offboard.csv" if file == "" else file
+            with open(file, 'r') as file:
                 headers = ['time', 'data']
                 csvreader = csv.DictReader(
                     file, delimiter=',',  fieldnames=headers)
@@ -82,7 +84,8 @@ class DataHandler():
             return self.time_start
     
         elif id == "get_camera":
-            with open("data_orig/local_position_targets.csv", 'r') as file:
+            file = "data_orig/local_position_targets.csv" if file == "" else file
+            with open(file, 'r') as file:
                 headers = ['time', 'layout', 'data']
                 data_x = []
                 data_y = []
@@ -126,14 +129,14 @@ class DataHandler():
                 return i
 
     def offset(self, x, y, z, xr, yp, zy, w, offset, lead_up=10):
-        x = x[offset:]
-        y = y[offset:]
-        z = z[offset:]
+        x = x
+        y = y
+        z = z
 
-        xr = xr[offset:]
-        yp = yp[offset:]
-        zy = zy[offset:]
-        w = w[offset:]
+        xr = xr
+        yp = yp
+        zy = zy
+        w = w
         return x, y, z, xr, yp, zy, w
 
     def euler_from_quaternion(self, xo, yo, zo, wo):

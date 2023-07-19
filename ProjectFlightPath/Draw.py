@@ -33,14 +33,15 @@ class Draw:
         self.ax.plot_surface(x_grid, y_grid, z_grid, linewidth=0, color=color)
 
     def draw_dronepath(self, x, y, z, offset, c='b', with_arrow=0, step=10):
-        x_off = x[0:offset]
-        y_off = y[0:offset]
-        z_off = z[0:offset]
-        self.ax.scatter(x_off, y_off, z_off, color='y')
-        self.ax.plot(x_off, y_off, z_off, color='y')
+        x_off = x[offset]
+        y_off = y[offset]
+        z_off = z[offset]
 
-        self.ax.scatter(x[offset:], y[offset:], z[offset:], color=c)
-        self.ax.plot(x[offset:], y[offset:], z[offset:], color=c)
+        self.ax.scatter(x_off, y_off, z_off, color='r', s=200)
+        self.ax.plot(x_off, y_off, z_off, color='r')
+
+        self.ax.scatter(x, y, z, color=c, s=1)
+        self.ax.plot(x, y, z, color=c)
 
         if with_arrow == 1:
             for i in range(0, len(x) - step, step):
@@ -50,13 +51,20 @@ class Draw:
         plt.show()
 
     def update_path(self, val):
-        offset = int(val)
+        offset = int(val) - 1
         self.ax.clear()
-        self.draw_cylinder()
+        print("off", offset)
+        # self.draw_cylinder()
+        
+        # self.ax.scatter(self.x_off, self.y_off, self.z_off, color='y')
+        # self.ax.plot(self.x_off, self.y_off, self.z_off, color='y')
+        
         x, y, z, _, _, _, _ = self.data_handler.offset(
             self.data_handler.x, self.data_handler.y, self.data_handler.z,
             self.data_handler.xroll, self.data_handler.ypitch, self.data_handler.zyaw,
             self.data_handler.w, offset
         )
         self.draw_dronepath(x, y, z, offset)
+
+        print("x", len(x))
         plt.draw()
